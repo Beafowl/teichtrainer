@@ -1,15 +1,24 @@
 <!DOCTYPE html>
-<html id="test" onkeydown="keyEvent(event)">
+<html id="keypress" onkeydown="keyEvent(event)">
 
     <head>
 
     </head>
+    <body>
         <canvas style="align-self: center;" class="canvas" id="trainer" width="842" height="500">
             <img id="bg" src="images/bg.png">
             <img id="progress_bar" src="images/progress_bar.png">
-            <img onclick="startGame()" id="button" src="images/button.png">
+            <img id="catfish1" src="images/catfish1.png">
+            <img id="catfish2" src="images/catfish2.png">
+            <img id="arrowUp" src="images/arrowUp.png">
+            <img id="arrowDown" src="images/arrowDown.png">
+            <img id="arrowLeft" src="images/arrowLeft.png">
+            <img id="arrowRight" src="images/arrowRight.png">
             <p>Failed to load</p>
         </canvas>
+        <b id="message"></b>
+        <div><button onclick="startGame()">Start</button></div>
+    </body>
         <script src="code.js">
         </script>
 </html>
