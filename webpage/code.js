@@ -5,6 +5,9 @@ let canvas;
 let width;
 let height;
 
+let offsetX = 50;
+let offsetY = 50;
+
 // game variables
 
 let trials = 20;
@@ -12,6 +15,7 @@ let points = 0;
 let gameStarted = false;
 let arrow = 'none';
 let catfishAnimation = false;
+let explosionAnimation = false;
 
 // fetch images
 
@@ -84,6 +88,7 @@ const reDraw = () => {
 
 
     //drawCatfish();
+    drawExplosion();
     drawArrow();
 }
 
@@ -121,6 +126,19 @@ const drawCatfish = () => {
 
 }
 
+// draws the explosion
+
+const drawExplosion = () => {
+
+    if (gameStarted) {
+
+        if (explosionAnimation)
+            context.drawImage(explosion1, 0, 0, explosion1.width, explosion1.height, Math.ceil((points/trials) * progress_bar.width) - 110, -60, explosion1.width, explosion1.height);
+        else
+            context.drawImage(explosion2, 0, 0, explosion2.width, explosion2.height, Math.ceil((points/trials) * progress_bar.width) - 110, -60, explosion2.width, explosion2.height);
+    }
+}
+
 // draws the arrows
 
 const drawArrow = () => {
@@ -139,6 +157,8 @@ const drawArrow = () => {
 // animation every 150ms
 
 setInterval(() => { catfishAnimation = !catfishAnimation; }, 150);
+
+setInterval(() => { explosionAnimation = !explosionAnimation; }, 80);
 
 initDraw();
 
