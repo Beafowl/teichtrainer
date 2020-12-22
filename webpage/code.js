@@ -23,6 +23,7 @@ let usedTime;
 let wrongKey = false;
 let gamePlayed = false;
 let gameStarted = false;
+let countdown;
 
 // fetch images
 
@@ -51,9 +52,33 @@ const resizeWindow = () => {
     else
         canvas.height = height = window.innerHeight;
 
-    offsetX = Math.ceil(width / 2) - (bg.width / 2);
+    // offset of game elements
+
+    offsetX = Math.ceil(width / 2) - (bg.width / 2); 
     offsetY = Math.ceil(height / 2 - 200);
 }
+
+// countdown
+
+const countdownFunc = () => {
+    
+    if (time <= 0) {
+
+        trials = points;
+        usedTime = maxTime;
+        gameStarted = false;
+        gamePlayed = true;
+        wrongKey = false;
+
+        resizeWindow();
+        clearInterval(countdown);
+
+    }
+
+    if (gameStarted)
+        time--;
+
+};
 
 const keyEvent = (event) => {
 
@@ -197,6 +222,8 @@ const startGame = () => {
 
     if (!gameStarted) {
 
+        clearInterval(countdown);
+        countdown = setInterval(countdownFunc, 10);
         gameStarted = true;
         trials = document.getElementById('tasten').value;
         points = 0;
@@ -269,27 +296,6 @@ setInterval(() => { catfishAnimation = !catfishAnimation; }, 150);
 // explosion animation
 
 setInterval(() => { explosionAnimation = !explosionAnimation; }, 80);
-
-// countdown
-
-const countdown = setInterval(() => {
-    
-    if (time <= 0) {
-
-        trials = points;
-        usedTime = maxTime;
-        gameStarted = false;
-        gamePlayed = true;
-        wrongKey = false;
-        
-        resizeWindow();
-        clearInterval(countdown);
-    }
-
-    if (gameStarted)
-        time--;
-
-}, 10);
 
 // set important variables
 
