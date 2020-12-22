@@ -8,17 +8,21 @@ let height;
 let offsetX = 50;
 let offsetY = 50;
 
+const MENU_Y = 350;
+
 // game variables
 
-let trials = 8;
+let trials = document.getElementById('tasten').value;
 let points = 0;
-let gameStarted = false;
 let arrow = 'none';
 let catfishAnimation = false;
 let explosionAnimation = false;
-let time = 1000; // 10 ms => 10 seconds
+let time;
+let maxTime;
+let usedTime;
 let wrongKey = false;
 let gamePlayed = false;
+let gameStarted = false;
 
 // fetch images
 
@@ -35,19 +39,31 @@ let arrowRight = document.getElementById('arrowRight');
 
 window.addEventListener('resize', (event) => {
 
-    canvas.width = width = window.innerWidth;
-    canvas.height = height = window.innerHeight;
-
-    offsetX = Math.ceil(width / 2) - (bg.width / 2);
-    offsetY = Math.ceil(height / 2);
+    resizeWindow();
 });
 
+const resizeWindow = () => {
+
+    canvas.width = width = window.innerWidth;
+
+    if (!gameStarted) // do not stretch the canvas; leave space for buttons etc
+        canvas.height = height = MENU_Y;
+    else
+        canvas.height = height = window.innerHeight;
+
+    offsetX = Math.ceil(width / 2) - (bg.width / 2);
+    offsetY = Math.ceil(height / 2 - 200);
+}
 
 const keyEvent = (event) => {
 
     // prevents browser screen from moving when pressing arrow keys
 
-    event.preventDefault();
+    if (gameStarted) {
+
+        event.preventDefault();
+
+    }
 
     const pressedKey = event.key;
 
@@ -62,11 +78,19 @@ const keyEvent = (event) => {
 
     if (gameStarted) {
 
+        resizeWindow();
+
         if (pressedKey == arrow) { // right key has been hit
             points++;
             if (points == trials) { // end game if all the keys have been pressed
 
                 gameStarted = false;
+                gamePlayed = true;
+                wrongKey = false;
+
+                usedTime = maxTime - time;
+
+                resizeWindow();
 
             }
             arrow = randomArrow();
@@ -76,8 +100,11 @@ const keyEvent = (event) => {
 
             if (pressedKey != 'Enter') {
 
-                wrongKey = true;
                 gameStarted = false;
+                wrongKey = true;
+                gamePlayed = true;
+
+                resizeWindow();
             }
         }
     }
@@ -114,25 +141,43 @@ const reDraw = () => {
         context.drawImage(bg, offsetX, offsetY);
         context.drawImage(progress_bar, 0, 0, Math.ceil((830 * (points/trials))), 100, 6 + offsetX, 6 + offsetY, Math.ceil((830 * (points/trials))), 100);
 
-
         drawCatfish();
         drawExplosion();
         drawArrow();
         drawTime();
 
+        document.getElementById('input').style.visibility = 'hidden'; // hide input if game started
+
     } else { // game menu
 
         context.font = '100px Arial';
-        context.fillText('Fischteich Trainer' , (width / 2) - 450, 100);
+        context.fillText('Fischteich Trainer' , (width / 2) - 400, 100);
 
         context.font = '20px Arial';
-        context.fillText('Enter drücken um zu starten', (width / 2) - 200, 140);
+        context.fillText('Enter drücken um zu starten', (width / 2) - 135, 140);
 
         if (gamePlayed) { // show stats if one round has been played
 
-            // TODO
-            
+            if (!wrongKey) { // player won
+
+            const seconds = Math.floor(usedTime / 100);
+            const milliseconds = usedTime % 100;
+
+            context.font = '30px Arial';
+            context.fillText(`Geschafft!`, (width / 2) - 70, 200);
+            context.fillText(`Zeit: ${seconds}.${('0' + milliseconds).slice(-2)}`, (width / 2) - 60, 235);
+            context.fillText(`Tasten: ${trials}`, (width / 2) - 60, 270);
+            context.fillText(`Tasten pro Sekunde: ${(100 * (trials/usedTime)).toFixed(2)}`, (width / 2) - 170, 305);
+
+
+            } else { // player failed
+
+                context.font = '30px Arial';
+                context.fillText(`Falsche Taste! Versuche es nochmal.`, (width / 2) - 250, 180);
+            }
         }
+
+        document.getElementById('input').style.visibility = 'visible'; // show input
     }
 }
 
@@ -143,11 +188,7 @@ const initDraw = () => {
     canvas = document.getElementById('trainer');
     context = canvas.getContext('2d');
 
-    canvas.width = width = window.innerWidth;
-    canvas.height = height = window.innerHeight;
-
-    offsetX = Math.ceil(width / 2) - (bg.width / 2);
-    offsetY = Math.ceil(height / 2);
+    resizeWindow();
 }
 
 // set every variable and start the timer
@@ -157,8 +198,9 @@ const startGame = () => {
     if (!gameStarted) {
 
         gameStarted = true;
+        trials = document.getElementById('tasten').value;
         points = 0;
-        time = 1000;
+        maxTime = time = document.getElementById('zeit').value * 100;
         arrow = randomArrow();
     }
 }
@@ -224,14 +266,32 @@ const drawTime = () => {
 
 setInterval(() => { catfishAnimation = !catfishAnimation; }, 150);
 
+// explosion animation
+
 setInterval(() => { explosionAnimation = !explosionAnimation; }, 80);
 
-setInterval(() => {
+// countdown
+
+const countdown = setInterval(() => {
     
+    if (time <= 0) {
+
+        trials = points;
+        usedTime = maxTime;
+        gameStarted = false;
+        gamePlayed = true;
+        wrongKey = false;
+        
+        resizeWindow();
+        clearInterval(countdown);
+    }
+
     if (gameStarted)
         time--;
 
 }, 10);
+
+// set important variables
 
 initDraw();
 
