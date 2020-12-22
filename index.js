@@ -3,6 +3,8 @@ const path = require('path');
 
 const app = express();
 
+app.use(express.static(path.join(__dirname)));
+
 const PORT = 80 || process.env.PORT;
 
 app.get('/trainer', (req, res) => {
